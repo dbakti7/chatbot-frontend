@@ -19,8 +19,7 @@ function botQuery(query) {
 	  if(response.ok) {
   		return response.json()
   }}).then(json => {
-    console.log(json.Response)
-    return json.Response
+    return json
   })
 }
 
@@ -236,7 +235,7 @@ var Chat = React.createClass({
 			console.log(response)
             var m = {
                 user : "Bot",
-                text : response,
+                text : response.Result,
 				bot: true
     	    }
             this._messageRecieve(m)

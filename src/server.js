@@ -105,10 +105,10 @@ server.listen(app.get('port'), err => {
             "Content-Type": "application/json"
         },
         body: {
-          "query": "ASEAN Scholarship"
+          "query": "What are the scholarship for ASEAN students?"
         },
         json:true
     }, function(error, response, body){
-      console.log(body.Response)
+      console.log(body)
     });
 });
