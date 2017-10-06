@@ -4,8 +4,13 @@ var React = require('react');
 // var request = require('request')
 // var socket = io.connect();
 var apiai = require('apiai');
- 
-function botQuery(query) {
+var uuid = require('node-uuid');
+
+var generate_key = function() {
+    return uuid.v4()
+};
+
+function botQuery(query, sessionID) {
   return fetch('http://localhost:8080/query', {
     method: 'POST',
     headers: {
@@ -13,7 +18,8 @@ function botQuery(query) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      query: query
+      query: query, 
+	  sessionID: sessionID
     })
   }).then((response) => {
 	  if(response.ok) {
@@ -166,7 +172,7 @@ var ChangeNameForm = React.createClass({
 var Chat = React.createClass({
 
 	getInitialState() {
-		return {users: [], messages:[], text: ''};
+		return {users: [], messages:[], text: '', sessionID:generate_key()};
 	},
 
 	componentDidMount() {
@@ -229,7 +235,7 @@ var Chat = React.createClass({
 		this.setState({messages});
         
 		socket.emit('send:message', message);
-        botQuery(message.text).then(response => {
+        botQuery(message.text, this.state.sessionID).then(response => {
             var m = {
                 user : "Bot",
                 text : response.Result,
