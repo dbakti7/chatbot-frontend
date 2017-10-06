@@ -59,16 +59,16 @@ module.exports = function (socket) {
   });
 
   // notify other clients that a new user has joined
-  socket.broadcast.emit('user:join', {
-    name: name
-  });
+  // socket.broadcast.emit('user:join', {
+  //   name: name
+  // });
 
   // broadcast a user's message to other users
   socket.on('send:message', function (data) {
-    socket.broadcast.emit('send:message', {
-      user: name,
-      text: data.text
-    });
+    // socket.broadcast.emit('send:message', {
+    //   user: name,
+    //   text: data.text
+    // });
   });
 
   // validate a user's name change, and broadcast it on success
@@ -79,10 +79,10 @@ module.exports = function (socket) {
 
       name = data.name;
       
-      socket.broadcast.emit('change:name', {
-        oldName: oldName,
-        newName: name
-      });
+      // socket.broadcast.emit('change:name', {
+      //   oldName: oldName,
+      //   newName: name
+      // });
 
       fn(true);
     } else {
@@ -92,9 +92,9 @@ module.exports = function (socket) {
 
   // clean up when a user leaves, and broadcast it to other users
   socket.on('disconnect', function () {
-    socket.broadcast.emit('user:left', {
-      name: name
-    });
+    // socket.broadcast.emit('user:left', {
+    //   name: name
+    // });
     userNames.free(name);
   });
 };

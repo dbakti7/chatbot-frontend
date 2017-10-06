@@ -45,6 +45,8 @@ var UsersList = React.createClass({
 	}
 });
 
+// If want to show username:
+//<strong>{this.props.user} :</strong>	
 var Message = React.createClass({
 	render() {
 		const isBot = this.props.bot;
@@ -52,7 +54,6 @@ var Message = React.createClass({
 			return (
 					<div className="talk-bubble tri-right right-top round">
 						<div className="talktext">
-							<strong>{this.props.user} :</strong> 
 							<span>{this.props.text}</span>		
 						</div>
 					</div>
@@ -63,7 +64,6 @@ var Message = React.createClass({
 				<div>
 					<div className="talk-bubble tri-right left-top round">
 						<div className="talktext">
-							<strong>{this.props.user} :</strong> 
 							<span>{this.props.text}</span>		
 						</div>
 					</div>
@@ -229,10 +229,7 @@ var Chat = React.createClass({
 		this.setState({messages});
         
 		socket.emit('send:message', message);
-        console.log(message.text)
         botQuery(message.text).then(response => {
-			console.log("Hi!")
-			console.log(response)
             var m = {
                 user : "Bot",
                 text : response.Result,
