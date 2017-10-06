@@ -256,9 +256,6 @@ var Chat = React.createClass({
 	render() {
 		return (
 			<div>
-				<UsersList
-					users={this.state.users}
-				/>
 				<MessageList
 					messages={this.state.messages}
 				/>
