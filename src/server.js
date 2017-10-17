@@ -9,16 +9,20 @@ import { match, RouterContext } from 'react-router';
 import routes from './routes';
 import NotFoundPage from './components/NotFoundPage';
 
+var bodyParser = require('body-parser')
+var dictionary = require('dictionary-en-us')
+var nspell = require('nspell')
 // initialize the server and configure support for ejs templates
 const app = new Express();
 var apiai = require('apiai');
 
 var socket = require('./socket.js');
 const server = new Server(app);
-
+var spell
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(bodyParser.json())
 
 // define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
@@ -40,6 +44,23 @@ function setupCORS(req, res, next) {
 }
 // app.all('*', setupCORS);
 // universal routing and rendering
+app.post("/preprocess", function(req, res) {
+   res.setHeader('Content-Type', 'application/json');
+
+    var result = ""
+    var y = req.body.word
+     var words = y.split(" ")
+     for(var i = 0;i<words.length;i+=1) {
+       if(i != 0)
+        result = result + " "
+       var cur = spell.suggest(words[i])
+       if(cur.length > 0)
+        result = result + cur[0]
+       else
+        result = result + words[i]
+     }
+    res.send(JSON.stringify({ result: result }));
+})
 app.get('*', (req, res) => {
   match(
     { routes, location: req.url },
@@ -76,6 +97,11 @@ app.get('*', (req, res) => {
 const port = process.env.PORT || 3000;
 const env = process.env.NODE_ENV || 'production';
 server.listen(app.get('port'), err => {
+  dictionary(function (err, dict) {
+    spell = nspell(dict)
+  })
+  
+  
   if (err) {
     return console.error(err);
   }

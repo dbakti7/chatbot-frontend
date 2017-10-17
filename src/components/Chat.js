@@ -5,10 +5,12 @@ var React = require('react');
 // var socket = io.connect();
 var apiai = require('apiai');
 var uuid = require('node-uuid');
+var fs = require('fs')
 
 var generate_key = function() {
     return uuid.v4()
 };
+
 
 function botQuery(query, sessionID) {
   return fetch('http://localhost:8080/query', {
@@ -170,9 +172,8 @@ var ChangeNameForm = React.createClass({
 
 
 var Chat = React.createClass({
-
 	getInitialState() {
-		return {users: [], messages:[], text: '', sessionID:generate_key()};
+		return {users: [], messages:[], text: '', sessionID:generate_key()};  
 	},
 
 	componentDidMount() {
@@ -233,17 +234,46 @@ var Chat = React.createClass({
 		var {messages} = this.state;
 		messages.push(message);
 		this.setState({messages});
-        
-		socket.emit('send:message', message);
-        botQuery(message.text, this.state.sessionID).then(response => {
-            var m = {
-                user : "Bot",
-                text : response.Result,
-				bot: true
-    	    }
-            this._messageRecieve(m)
+		var that = this
+		var data = {
+			"word": message.text
+		}
+
+		fetch("http://localhost:3000/preprocess", {
+		method: "POST",
+		headers: {
+        	'Accept': 'application/json, text/plain, */*',
+        	'Content-Type': 'application/json'
+    	},
+		body:  JSON.stringify(data)
 		})
-        
+		.then(function(response){ 
+			return response.json();   
+		})
+		.then(function(data){ 
+			var queryMessage = message.text
+			if(data.result != message.text) {
+				console.log(data.result)
+				var newMessage = {
+					user: "Bot",
+					text: "Did you mean: " + data.result,
+					bot: true
+				}
+				that._messageRecieve(newMessage)
+				queryMessage = data.result
+			}
+				
+			socket.emit('send:message', message);
+			
+			botQuery(queryMessage, that.state.sessionID).then(response => {
+				var m = {
+					user : "Bot",
+					text : response.Result,
+					bot: true
+				}
+				that._messageRecieve(m)
+			})
+		});
 	},
 
 	handleChangeName(newName) {
