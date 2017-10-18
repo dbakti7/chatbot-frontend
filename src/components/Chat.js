@@ -1,11 +1,23 @@
 'use strict';
 
 var React = require('react');
-// var request = require('request')
-// var socket = io.connect();
 var apiai = require('apiai');
 var uuid = require('node-uuid');
 var fs = require('fs')
+
+var topics = ["SCSE", "Hostel", "Scholarship"]
+
+var getTopics = function() {
+	var welcomeText = "Welcome to NTU Chatbot. You can find out more about:\n"
+	for(var i = 0; i < topics.length; i++)
+		welcomeText += (i+1) + ". " + topics[i] + "\n"
+	var newMessage = {
+		user: "Bot",
+		text: welcomeText,
+		bot: true
+	}
+	return newMessage
+}
 
 var generate_key = function() {
     return uuid.v4()
@@ -62,7 +74,9 @@ var Message = React.createClass({
 			return (
 					<div className="talk-bubble tri-right right-top round">
 						<div className="talktext">
-							<span>{this.props.text}</span>		
+							<span>{this.props.text.split("\n").map(i => {
+            					return <p>{i}</p>;
+        					})}</span>		
 						</div>
 					</div>
 			);
@@ -72,7 +86,9 @@ var Message = React.createClass({
 				<div>
 					<div className="talk-bubble tri-right left-top round">
 						<div className="talktext">
-							<span>{this.props.text}</span>		
+						<span>{this.props.text.split("\n").map(i => {
+            					return <p>{i}</p>;
+        					})}</span>		
 						</div>
 					</div>
 				</div>
@@ -173,7 +189,7 @@ var ChangeNameForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[], text: '', sessionID:generate_key()};  
+		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key()};  
 	},
 
 	componentDidMount() {
@@ -265,7 +281,10 @@ var Chat = React.createClass({
 				
 			socket.emit('send:message', message);
 			
-			botQuery(queryMessage, that.state.sessionID).then(response => {
+			// TODO: Fixed the autocorrect module
+			//botQuery(queryMessage, that.state.sessionID).then(response => {
+			botQuery(message.text, that.state.sessionID).then(response => {
+				console.log("Context: " + response.Context)
 				var m = {
 					user : "Bot",
 					text : response.Result,
