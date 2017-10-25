@@ -189,8 +189,7 @@ var ChangeNameForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		//return {users: [], messages:[getTopics()], text: '', sessionID:generate_key()};  
-		return {users: [], messages:[], text: '', sessionID:generate_key()};  
+		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key()};  
 	},
 
 	componentDidMount() {
