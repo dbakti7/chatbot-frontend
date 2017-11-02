@@ -101,7 +101,6 @@ var MessageList = React.createClass({
 	render() {
 		return (
 			<div className='messages'>
-				<h2> Conversation: </h2>
 				{
 					this.props.messages.map((message, i) => {
 						return (
@@ -142,8 +141,8 @@ var MessageForm = React.createClass({
 
 	render() {
 		return(
-			<div className='message_form'>
-				<h3>Write New Message</h3>
+			<div className='message_form' style={{position: 'fixed', height: '20%', bottom:'0'}}>
+				<h3>What do you want to know?</h3>
 				<form onSubmit={this.handleSubmit}>
 					<input
 						onChange={this.changeHandler}
@@ -192,12 +191,21 @@ var Chat = React.createClass({
 		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key()};  
 	},
 
+	scrollToBottom() {
+		const node = ReactDOM.findDOMNode(this.messagesEnd);
+		node.scrollIntoView({ behavior: "smooth" });
+	},
+
 	componentDidMount() {
 		socket.on('init', this._initialize);
 		socket.on('send:message', this._messageRecieve);
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
+	},
+
+	componentDidUpdate() {
+		this.scrollToBottom();
 	},
 
 	_initialize(data) {
@@ -310,16 +318,17 @@ var Chat = React.createClass({
 
 	render() {
 		return (
-			<div>
-				<MessageList
-					messages={this.state.messages}
-				/>
+			<div style={{height: '100%'}}>
+				<div style={{height:'80%', overflowY:'scroll', width:'100%', position:'fixed'}}>
+					<MessageList
+						messages={this.state.messages}
+					/>
+					<div style={{ float:"left", clear: "both" }}
+             		ref={(el) => { this.messagesEnd = el; }}></div>
+				</div>
 				<MessageForm
 					onMessageSubmit={this.handleMessageSubmit}
 					user={this.state.user}
-				/>
-				<ChangeNameForm
-					onChangeName={this.handleChangeName}
 				/>
 			</div>
 		);
