@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom')
 var apiai = require('apiai');
 var uuid = require('node-uuid');
 var fs = require('fs')
@@ -14,7 +15,8 @@ var getTopics = function() {
 	var newMessage = {
 		user: "Bot",
 		text: welcomeText,
-		bot: true
+		bot: true,
+		context: ""
 	}
 	return newMessage
 }
@@ -100,19 +102,21 @@ var Message = React.createClass({
 var MessageList = React.createClass({
 	render() {
 		return (
-			<div className='messages'>
-				{
-					this.props.messages.map((message, i) => {
-						return (
-							<Message
-								key={i}
-								user={message.user}
-								text={message.text} 
-								bot={message.bot}
-							/>
-						);
-					})
-				} 
+			<div>
+				<div className='messages'>
+					{
+						this.props.messages.map((message, i) => {
+							return (
+								<Message
+									key={i}
+									user={message.user}
+									text={message.text} 
+									bot={message.bot}
+								/>
+							);
+						})
+					} 
+				</div>
 			</div>
 		);
 	}
@@ -129,7 +133,8 @@ var MessageForm = React.createClass({
 		var message = {
 			user : this.props.user,
 			text : this.state.text,
-			bot: false
+			bot: false,
+			context: ""
 		}
 		this.props.onMessageSubmit(message);
 		this.setState({ text: '' });
@@ -141,8 +146,7 @@ var MessageForm = React.createClass({
 
 	render() {
 		return(
-			<div className='message_form' style={{position: 'fixed', height: '20%', bottom:'0'}}>
-				<h3>What do you want to know?</h3>
+			<div className='message_form'>
 				<form onSubmit={this.handleSubmit}>
 					<input
 						onChange={this.changeHandler}
@@ -188,14 +192,14 @@ var ChangeNameForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key()};  
+		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:''};
 	},
 
 	scrollToBottom() {
 		const node = ReactDOM.findDOMNode(this.messagesEnd);
 		node.scrollIntoView({ behavior: "smooth" });
 	},
-
+	
 	componentDidMount() {
 		socket.on('init', this._initialize);
 		socket.on('send:message', this._messageRecieve);
@@ -259,6 +263,11 @@ var Chat = React.createClass({
 		messages.push(message);
 		this.setState({messages});
 		var that = this
+		if(message.text == "clear") {
+			messages = [getTopics()]
+			this.setState({messages});
+			return;
+		}
 		var data = {
 			"word": message.text
 		}
@@ -281,7 +290,8 @@ var Chat = React.createClass({
 				var newMessage = {
 					user: "Bot",
 					text: "Did you mean: " + data.result,
-					bot: true
+					bot: true,
+					context: ""
 				}
 				//that._messageRecieve(newMessage)
 				queryMessage = data.result
@@ -296,8 +306,14 @@ var Chat = React.createClass({
 				var m = {
 					user : "Bot",
 					text : response.Result,
-					bot: true
+					bot: true,
+					context: response.Context
 				}
+				if(response.Result == "reset")
+					m = getTopics()
+				console.log("Before" + that.state.context)
+				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
+				console.log("after" + that.state.context)
 				that._messageRecieve(m)
 			})
 		});
@@ -326,10 +342,15 @@ var Chat = React.createClass({
 					<div style={{ float:"left", clear: "both" }}
              		ref={(el) => { this.messagesEnd = el; }}></div>
 				</div>
-				<MessageForm
-					onMessageSubmit={this.handleMessageSubmit}
-					user={this.state.user}
-				/>
+				<div style={{position: 'fixed', height: '20%', bottom: '0'}}>
+					<h3 ref={(el) => { this.contextText = el; }}>
+						What do you want to know about {this.state.context}? Please type "reset" to go back to menu.
+					</h3>
+					<MessageForm
+						onMessageSubmit={this.handleMessageSubmit}
+						user={this.state.user}
+					/>
+				</div>
 			</div>
 		);
 	}
