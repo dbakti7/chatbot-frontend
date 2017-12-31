@@ -26,7 +26,7 @@ var generate_key = function() {
 };
 
 
-function botQuery(query, sessionID) {
+function botQuery(query, sessionID, enumerator) {
   return fetch('http://localhost:8080/query', {
     method: 'POST',
     headers: {
@@ -35,7 +35,8 @@ function botQuery(query, sessionID) {
     },
     body: JSON.stringify({
       query: query, 
-	  sessionID: sessionID
+	  sessionID: sessionID,
+	  enum: enumerator
     })
   }).then((response) => {
 	  if(response.ok) {
@@ -192,7 +193,7 @@ var ChangeNameForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:''};
+		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:'', enumerator:[]};
 	},
 
 	scrollToBottom() {
@@ -301,7 +302,7 @@ var Chat = React.createClass({
 			
 			// TODO: Fixed the autocorrect module
 			//botQuery(queryMessage, that.state.sessionID).then(response => {
-			botQuery(message.text, that.state.sessionID).then(response => {
+			botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
 				console.log("Context: " + response.Context)
 				var m = {
 					user : "Bot",
@@ -311,9 +312,13 @@ var Chat = React.createClass({
 				}
 				if(response.Result == "reset")
 					m = getTopics()
-				console.log("Before" + that.state.context)
+				console.log("Context Before" + that.state.context)
 				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
-				console.log("after" + that.state.context)
+				that.state.enumerator = response.Enum
+				if(that.state.enumerator == "")
+					that.state.enumerator = []
+				console.log("Enumerator " + that.state.enumerator)
+				console.log("Context After" + that.state.context)
 				that._messageRecieve(m)
 			})
 		});
