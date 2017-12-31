@@ -5,6 +5,8 @@ var ReactDOM = require('react-dom')
 var apiai = require('apiai');
 var uuid = require('node-uuid');
 var fs = require('fs')
+var Linkify = require('react-linkify').default
+// check https://stackoverflow.com/a/34130767/7003027 for details on "default" parameter
 
 var topics = ["SCSE", "Hostel", "Scholarship"]
 
@@ -77,9 +79,11 @@ var Message = React.createClass({
 			return (
 					<div className="talk-bubble tri-right right-top round">
 						<div className="talktext">
-							<span>{this.props.text.split("\n").map(i => {
-            					return <p>{i}</p>;
-        					})}</span>		
+							<Linkify properties={{target: '_blank'}}>
+								<span>{this.props.text.split("\n").map(i => {
+									return <p>{i}</p>;
+								})}</span>		
+							</Linkify>
 						</div>
 					</div>
 			);
@@ -89,9 +93,11 @@ var Message = React.createClass({
 				<div>
 					<div className="talk-bubble tri-right left-top round">
 						<div className="talktext">
-						<span>{this.props.text.split("\n").map(i => {
-            					return <p>{i}</p>;
-        					})}</span>		
+						<Linkify properties={{target: '_blank'}}>
+							<span>{this.props.text.split("\n").map(i => {
+									return <p>{i}</p>;
+								})}</span>		
+						</Linkify>
 						</div>
 					</div>
 				</div>
@@ -357,6 +363,7 @@ var Chat = React.createClass({
 					/>
 				</div>
 			</div>
+			
 		);
 	}
 });
