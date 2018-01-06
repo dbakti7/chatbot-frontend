@@ -2,7 +2,6 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom')
-var apiai = require('apiai');
 var uuid = require('node-uuid');
 var fs = require('fs')
 var Linkify = require('react-linkify').default

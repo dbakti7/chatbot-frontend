@@ -14,7 +14,6 @@ var dictionary = require('dictionary-en-us')
 var nspell = require('nspell')
 // initialize the server and configure support for ejs templates
 const app = new Express();
-var apiai = require('apiai');
 
 var socket = require('./socket.js');
 const server = new Server(app);
