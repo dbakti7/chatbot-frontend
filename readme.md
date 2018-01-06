@@ -15,6 +15,10 @@ sudo make install
 ```
 
 ## Chatbot-frontend
+1. Clone the repository
+`git clone https://github.com/dbakti7/chatbot-frontend.git`
+
+2. Install the dependencies
 `npm install`
 
 ## Running the node.js server
