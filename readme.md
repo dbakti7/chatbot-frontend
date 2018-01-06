@@ -22,6 +22,7 @@ sudo make install
 `npm install`
 
 ## Running the node.js server
+If you are on Linux environment, run the following commands.
 ```
 node_modules/.bin/webpack -p
 node_modules/.bin/babel-node --presets react,es2015 src/server.js
@@ -32,3 +33,6 @@ If you are on Windows environment, open Windows PowerShell and use the following
 NODE_ENV=production node_modules/.bin/webpack -p
 NODE_ENV=production node_modules/.bin/babel-node --presets react,es2015 src/server.js
 ```
+
+Navigate to
+`localhost:3000/chat`
