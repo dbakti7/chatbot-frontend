@@ -5,6 +5,7 @@ var ReactDOM = require('react-dom')
 var uuid = require('node-uuid');
 var fs = require('fs')
 var Linkify = require('react-linkify').default
+var dialogFlow = require('apiai')
 // check https://stackoverflow.com/a/34130767/7003027 for details on "default" parameter
 
 var topics = ["SCSE", "Hostel", "Scholarship"]
@@ -28,23 +29,38 @@ var generate_key = function() {
 
 
 function botQuery(query, sessionID, enumerator) {
-  return fetch('http://localhost:8080/query', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: query, 
-	  sessionID: sessionID,
-	  enum: enumerator
-    })
-  }).then((response) => {
-	  if(response.ok) {
-  		return response.json()
-  }}).then(json => {
-    return json
-  })
+//   var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece")
+//   var request = app.textRequest(query, {
+// 	  sessionId: sessionID
+//   })
+
+//   request.on('response', function(response) {
+// 	  console.log(response)
+//   })
+  
+//   request.on('error', function(error){
+// 	  console.log(error)
+//   })
+
+//   request.end()
+//   return fetch('http://localhost:8080/query', {
+	return fetch('http://localhost:8080/internal-query', {
+		method: 'POST',
+		headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+		query: query, 
+		sessionID: sessionID,
+		enum: enumerator
+		})
+	}).then((response) => {
+		if(response.ok) {
+			return response.json()
+	}}).then(json => {
+		return json
+	})
 }
 
 
