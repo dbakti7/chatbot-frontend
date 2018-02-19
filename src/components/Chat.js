@@ -14,7 +14,8 @@ var getTopics = function() {
 	var welcomeText = "Welcome to NTU Chatbot. You can find out more about:\n"
 	for(var i = 0; i < topics.length; i++)
 		welcomeText += (i+1) + ". " + topics[i] + "\n"
-	alpha2message = "Welcome to NTU Chatbot! We are currently in testing phase to gather more data, please ask questions related to SCSE, scholarship, or hostel. After that, please help us by filling the following questionaire: https://tinyurl.com/botfeedback-alpha2"
+	var alpha2message = "Welcome to NTU Chatbot! We are currently in testing phase to gather more data, please ask questions related to SCSE, scholarship, or hostel. After that, please help us by filling the following questionaire: https://tinyurl.com/botfeedback-alpha2"
+
 	var newMessage = {
 		user: "Bot",
 		text: alpha2message,
