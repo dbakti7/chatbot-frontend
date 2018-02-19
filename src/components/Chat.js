@@ -214,7 +214,8 @@ var ChangeNameForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:'', enumerator:[]};
+		// return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:'', enumerator:[]};
+		return {users: [], messages:[], text: '', sessionID:generate_key(), context:'', enumerator:[]};
 	},
 
 	scrollToBottom() {
@@ -286,7 +287,8 @@ var Chat = React.createClass({
 		this.setState({messages});
 		var that = this
 		if(message.text == "clear") {
-			messages = [getTopics()]
+			// messages = [getTopics()]
+			messages = []
 			this.setState({messages});
 			return;
 		}
@@ -331,8 +333,8 @@ var Chat = React.createClass({
 					bot: true,
 					context: response.Context
 				}
-				if(response.Result == "reset")
-					m = getTopics()
+				// if(response.Result == "reset")
+				// 	m = getTopics()
 				console.log("Context Before" + that.state.context)
 				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
 				that.state.enumerator = response.Enum

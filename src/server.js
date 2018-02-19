@@ -123,17 +123,17 @@ server.listen(app.get('port'), err => {
     // });
     
     // request.end();
-    var request = require('request');
-    request.post({
-        url: "http://localhost:8080/query",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: {
-          "query": "What are the scholarship for ASEAN students?"
-        },
-        json:true
-    }, function(error, response, body){
-      console.log(body)
-    });
+    // var request = require('request');
+    // request.post({
+    //     url: "http://localhost:8080/query",
+    //     headers: {
+    //         "Content-Type": "application/json"
+    //     },
+    //     body: {
+    //       "query": "What are the scholarship for ASEAN students?"
+    //     },
+    //     json:true
+    // }, function(error, response, body){
+    //   console.log(body)
+    // });
 });
