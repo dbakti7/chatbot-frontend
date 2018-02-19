@@ -374,7 +374,7 @@ var Chat = React.createClass({
 				</div>
 				<div style={{position: 'fixed', height: '20%', bottom: '0'}}>
 					<h3 ref={(el) => { this.contextText = el; }}>
-						What do you want to know about {this.state.context}? Please type "reset" to go back to menu.
+						What do you want to know about?
 					</h3>
 					<MessageForm
 						onMessageSubmit={this.handleMessageSubmit}
