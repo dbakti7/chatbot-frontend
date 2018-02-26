@@ -6,9 +6,17 @@ var uuid = require('node-uuid');
 var fs = require('fs')
 var Linkify = require('react-linkify').default
 var dialogFlow = require('apiai')
+var constants = require('../constants')
 // check https://stackoverflow.com/a/34130767/7003027 for details on "default" parameter
 
 var topics = ["SCSE", "Hostel", "Scholarship"]
+
+var internalQueryURL = 'http://localhost:8080/internal-query';
+var preprocessURL = 'http://localhost:3000/preprocess';
+if(constants.IS_PRODUCTION) {
+	internalQueryURL = 'https://www.pieceofcode.org:8080/internal-query';
+	preprocessURL = 'https://www.pieceofcode.org/preprocess';
+}
 
 var getTopics = function() {
 	var welcomeText = "Welcome to NTU Chatbot. You can find out more about:\n"
@@ -46,7 +54,7 @@ function botQuery(query, sessionID, enumerator) {
 
 //   request.end()
 //   return fetch('http://localhost:8080/query', {
-	return fetch('http://localhost:8080/internal-query', {
+	return fetch(internalQueryURL, {
 		method: 'POST',
 		headers: {
 		'Accept': 'application/json',
@@ -298,7 +306,7 @@ var Chat = React.createClass({
 			"word": message.text
 		}
 
-		fetch("http://localhost:3000/preprocess", {
+		fetch(preprocessURL, {
 		method: "POST",
 		headers: {
         	'Accept': 'application/json, text/plain, */*',
