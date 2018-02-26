@@ -25,6 +25,15 @@ var sslOptions = {
   cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
 };
 
+if(constants.IS_PRODUCTION) {
+  app.use(function(req,res,next) {
+  if (!/https/.test(req.protocol)){
+     res.redirect("https://" + req.headers.host + req.url);
+  } else {
+     return next();
+  }});
+}
+
 var server = new Server(app);
 
 var spell
@@ -154,6 +163,7 @@ server.listen(app.get('port'), err => {
 if(constants.IS_PRODUCTION) {
   var sslPort = 443;
   var sslServer = https.createServer(sslOptions, app);
+  io.listen(sslServer);
   sslServer.listen(sslPort, err => {
     if(err) {
       return console.error(err);
