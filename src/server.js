@@ -9,6 +9,7 @@ import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import routes from './routes';
 import NotFoundPage from './components/NotFoundPage';
+var constants = require('./constants');
 var fs = require('fs')
 
 var bodyParser = require('body-parser')
@@ -23,8 +24,6 @@ var sslOptions = {
   key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
 };
-
-var isProduction = true
 
 var server = new Server(app);
 
@@ -152,7 +151,7 @@ server.listen(app.get('port'), err => {
     // });
 });
 
-if(isProduction) {
+if(constants.IS_PRODUCTION) {
   var sslPort = 443;
   var sslServer = https.createServer(sslOptions, app);
   sslServer.listen(sslPort, err => {
