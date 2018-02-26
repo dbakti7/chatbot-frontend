@@ -2,6 +2,7 @@
 
 import path from 'path';
 import { Server } from 'http';
+var https = require('https');
 import Express from 'express';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
@@ -23,12 +24,10 @@ var sslOptions = {
   cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
 };
 
-var isProduction = false
+var isProduction = true
 
 var server = new Server(app);
-if(isProduction) {
-  server = new Server(sslOptions, app);
-}
+
 var spell
 
 app.set('view engine', 'ejs');
@@ -37,7 +36,9 @@ app.use(bodyParser.json())
 
 // define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
-app.set('port', 3000)
+
+app.set('port', 80)
+
 var io = require('socket.io').listen(server);
 io.sockets.on('connection', socket)
 function setupCORS(req, res, next) {
@@ -107,6 +108,7 @@ app.get('*', (req, res) => {
 // start the server
 const port = process.env.PORT || 3000;
 const env = process.env.NODE_ENV || 'production';
+
 server.listen(app.get('port'), err => {
   dictionary(function (err, dict) {
     spell = nspell(dict)
@@ -149,3 +151,15 @@ server.listen(app.get('port'), err => {
     //   console.log(body)
     // });
 });
+
+if(isProduction) {
+  var sslPort = 443;
+  var sslServer = https.createServer(sslOptions, app);
+  sslServer.listen(sslPort, err => {
+    if(err) {
+      return console.error(err);
+    }
+    console.info("SSL Server running...");
+  })
+}
+
