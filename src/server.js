@@ -8,6 +8,7 @@ import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import routes from './routes';
 import NotFoundPage from './components/NotFoundPage';
+var fs = require('fs')
 
 var bodyParser = require('body-parser')
 var dictionary = require('dictionary-en-us')
@@ -16,7 +17,18 @@ var nspell = require('nspell')
 const app = new Express();
 
 var socket = require('./socket.js');
-const server = new Server(app);
+
+var sslOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
+};
+
+var isProduction = false
+
+var server = new Server(app);
+if(isProduction) {
+  server = new Server(sslOptions, app);
+}
 var spell
 
 app.set('view engine', 'ejs');
