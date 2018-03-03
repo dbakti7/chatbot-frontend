@@ -49,7 +49,13 @@ app.use(Express.static(path.join(__dirname, 'static')));
 
 app.set('port', 80)
 
-var io = require('socket.io').listen(server);
+//var ioServer = require('socket.io');
+//var io = new ioServer();
+//var io = require('socket.io').listen(server);
+
+var sslPort = 443;
+var sslServer = https.createServer(sslOptions, app);
+var io = require('socket.io').listen(sslServer);
 io.sockets.on('connection', socket)
 function setupCORS(req, res, next) {
     // TODO: Review whether we need CORS here.
@@ -162,15 +168,18 @@ server.listen(app.get('port'), err => {
     // });
 });
 
+//io.attach(server);
+
 if(constants.IS_PRODUCTION) {
-  var sslPort = 443;
-  var sslServer = https.createServer(sslOptions, app);
-  io.listen(sslServer);
+  //var sslPort = 443;
+  //var sslServer = https.createServer(sslOptions, app);
+  //io.listen(sslServer);
   sslServer.listen(sslPort, err => {
     if(err) {
       return console.error(err);
     }
     console.info("SSL Server running...");
   })
+  //io.attach(sslServer);
 }
 
