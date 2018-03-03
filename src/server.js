@@ -20,12 +20,14 @@ const app = new Express();
 
 var socket = require('./socket.js');
 
-var sslOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
-};
+var sslOptions = {}
 
 if(constants.IS_PRODUCTION) {
+  sslOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
+  };
+
   app.use(function(req,res,next) {
   if (!/https/.test(req.protocol)){
      res.redirect("https://" + req.headers.host + req.url);

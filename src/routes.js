@@ -6,11 +6,13 @@ import IndexPage from './components/IndexPage';
 // import AthletePage from './components/AthletePage';
 import NotFoundPage from './components/NotFoundPage';
 import Chat from './components/Chat';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 const routes = (
-  <Route path="/" component={Chat}>
-    <IndexRoute component={IndexPage}/>
+  <Route path="/" component={Layout}>
+    <IndexRoute component={Chat}/>
     <Route path="chat" component={Chat}/>
+    <Route path="privacy_policy" component={PrivacyPolicy}/>
     <Route path="*" component={NotFoundPage}/>
   </Route>
 );
