@@ -12,7 +12,7 @@ var constants = require('../constants')
 var topics = ["SCSE", "Hostel", "Scholarship"]
 
 var internalQueryURL = 'http://localhost:8080/internal-query';
-var preprocessURL = 'http://localhost:3000/preprocess';
+var preprocessURL = 'http://localhost/preprocess';
 if(constants.IS_PRODUCTION) {
 	internalQueryURL = 'https://www.pieceofcode.org:8080/internal-query';
 	preprocessURL = 'https://www.pieceofcode.org/preprocess';

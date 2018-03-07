@@ -55,7 +55,13 @@ app.set('port', 80)
 
 var sslPort = 443;
 var sslServer = https.createServer(sslOptions, app);
-var io = require('socket.io').listen(sslServer);
+var io
+if(constants.IS_PRODUCTION) {
+  io = require('socket.io').listen(sslServer);
+} else {
+  io = require('socket.io').listen(server);
+}
+
 io.sockets.on('connection', socket)
 function setupCORS(req, res, next) {
     // TODO: Review whether we need CORS here.
