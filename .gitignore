@@ -35,6 +35,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+babel_cache/
+.vscode/
 
 # Typescript v1 declaration files
 typings/
@@ -56,3 +58,7 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# generated static
+src/static/css/
+src/static/js/

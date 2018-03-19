@@ -2,19 +2,31 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom')
-var apiai = require('apiai');
 var uuid = require('node-uuid');
 var fs = require('fs')
+var Linkify = require('react-linkify').default
+var dialogFlow = require('apiai')
+var constants = require('../constants')
+// check https://stackoverflow.com/a/34130767/7003027 for details on "default" parameter
 
 var topics = ["SCSE", "Hostel", "Scholarship"]
+
+var internalQueryURL = 'http://localhost:8080/internal-query';
+var preprocessURL = 'http://localhost/preprocess';
+if(constants.IS_PRODUCTION) {
+	internalQueryURL = 'https://www.pieceofcode.org:8080/internal-query';
+	preprocessURL = 'https://www.pieceofcode.org/preprocess';
+}
 
 var getTopics = function() {
 	var welcomeText = "Welcome to NTU Chatbot. You can find out more about:\n"
 	for(var i = 0; i < topics.length; i++)
 		welcomeText += (i+1) + ". " + topics[i] + "\n"
+	var alpha2message = "Welcome to NTU Chatbot! We are currently in testing phase to gather more data, please ask questions related to SCSE, scholarship, or hostel. After that, please help us by filling the following questionaire: https://tinyurl.com/botfeedback-alpha2"
+
 	var newMessage = {
 		user: "Bot",
-		text: welcomeText,
+		text: alpha2message,
 		bot: true,
 		context: ""
 	}
@@ -26,23 +38,39 @@ var generate_key = function() {
 };
 
 
-function botQuery(query, sessionID) {
-  return fetch('http://localhost:8080/query', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: query, 
-	  sessionID: sessionID
-    })
-  }).then((response) => {
-	  if(response.ok) {
-  		return response.json()
-  }}).then(json => {
-    return json
-  })
+function botQuery(query, sessionID, enumerator) {
+//   var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece")
+//   var request = app.textRequest(query, {
+// 	  sessionId: sessionID
+//   })
+
+//   request.on('response', function(response) {
+// 	  console.log(response)
+//   })
+  
+//   request.on('error', function(error){
+// 	  console.log(error)
+//   })
+
+//   request.end()
+//   return fetch('http://localhost:8080/query', {
+	return fetch(internalQueryURL, {
+		method: 'POST',
+		headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+		query: query, 
+		sessionID: sessionID,
+		enum: enumerator
+		})
+	}).then((response) => {
+		if(response.ok) {
+			return response.json()
+	}}).then(json => {
+		return json
+	})
 }
 
 
@@ -76,9 +104,11 @@ var Message = React.createClass({
 			return (
 					<div className="talk-bubble tri-right right-top round">
 						<div className="talktext">
-							<span>{this.props.text.split("\n").map(i => {
-            					return <p>{i}</p>;
-        					})}</span>		
+							<Linkify properties={{target: '_blank'}}>
+								<span>{this.props.text.split("\n").map(i => {
+									return <p>{i}</p>;
+								})}</span>		
+							</Linkify>
 						</div>
 					</div>
 			);
@@ -88,9 +118,11 @@ var Message = React.createClass({
 				<div>
 					<div className="talk-bubble tri-right left-top round">
 						<div className="talktext">
-						<span>{this.props.text.split("\n").map(i => {
-            					return <p>{i}</p>;
-        					})}</span>		
+						<Linkify properties={{target: '_blank'}}>
+							<span>{this.props.text.split("\n").map(i => {
+									return <p>{i}</p>;
+								})}</span>		
+						</Linkify>
 						</div>
 					</div>
 				</div>
@@ -192,7 +224,8 @@ var ChangeNameForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:''};
+		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:'', enumerator:[]};
+		// return {users: [], messages:[], text: '', sessionID:generate_key(), context:'', enumerator:[]};
 	},
 
 	scrollToBottom() {
@@ -264,7 +297,8 @@ var Chat = React.createClass({
 		this.setState({messages});
 		var that = this
 		if(message.text == "clear") {
-			messages = [getTopics()]
+			// messages = [getTopics()]
+			messages = []
 			this.setState({messages});
 			return;
 		}
@@ -272,7 +306,7 @@ var Chat = React.createClass({
 			"word": message.text
 		}
 
-		fetch("http://localhost:3000/preprocess", {
+		fetch(preprocessURL, {
 		method: "POST",
 		headers: {
         	'Accept': 'application/json, text/plain, */*',
@@ -301,7 +335,7 @@ var Chat = React.createClass({
 			
 			// TODO: Fixed the autocorrect module
 			//botQuery(queryMessage, that.state.sessionID).then(response => {
-			botQuery(message.text, that.state.sessionID).then(response => {
+			botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
 				console.log("Context: " + response.Context)
 				var m = {
 					user : "Bot",
@@ -309,11 +343,15 @@ var Chat = React.createClass({
 					bot: true,
 					context: response.Context
 				}
-				if(response.Result == "reset")
-					m = getTopics()
-				console.log("Before" + that.state.context)
+				// if(response.Result == "reset")
+				// 	m = getTopics()
+				console.log("Context Before" + that.state.context)
 				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
-				console.log("after" + that.state.context)
+				that.state.enumerator = response.Enum
+				if(that.state.enumerator == "")
+					that.state.enumerator = []
+				console.log("Enumerator " + that.state.enumerator)
+				console.log("Context After" + that.state.context)
 				that._messageRecieve(m)
 			})
 		});
@@ -344,7 +382,7 @@ var Chat = React.createClass({
 				</div>
 				<div style={{position: 'fixed', height: '20%', bottom: '0'}}>
 					<h3 ref={(el) => { this.contextText = el; }}>
-						What do you want to know about {this.state.context}? Please type "reset" to go back to menu.
+						What do you want to know about?
 					</h3>
 					<MessageForm
 						onMessageSubmit={this.handleMessageSubmit}
@@ -352,6 +390,7 @@ var Chat = React.createClass({
 					/>
 				</div>
 			</div>
+			
 		);
 	}
 });

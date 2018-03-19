@@ -2,22 +2,42 @@
 
 import path from 'path';
 import { Server } from 'http';
+var https = require('https');
 import Express from 'express';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import routes from './routes';
 import NotFoundPage from './components/NotFoundPage';
+var constants = require('./constants');
+var fs = require('fs')
 
 var bodyParser = require('body-parser')
 var dictionary = require('dictionary-en-us')
 var nspell = require('nspell')
 // initialize the server and configure support for ejs templates
 const app = new Express();
-var apiai = require('apiai');
 
 var socket = require('./socket.js');
-const server = new Server(app);
+
+var sslOptions = {}
+
+if(constants.IS_PRODUCTION) {
+  sslOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
+  };
+
+  app.use(function(req,res,next) {
+  if (!/https/.test(req.protocol)){
+     res.redirect("https://" + req.headers.host + req.url);
+  } else {
+     return next();
+  }});
+}
+
+var server = new Server(app);
+
 var spell
 
 app.set('view engine', 'ejs');
@@ -26,8 +46,22 @@ app.use(bodyParser.json())
 
 // define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
-app.set('port', 3000)
-var io = require('socket.io').listen(server);
+
+app.set('port', 80)
+
+//var ioServer = require('socket.io');
+//var io = new ioServer();
+//var io = require('socket.io').listen(server);
+
+var sslPort = 443;
+var sslServer = https.createServer(sslOptions, app);
+var io
+if(constants.IS_PRODUCTION) {
+  io = require('socket.io').listen(sslServer);
+} else {
+  io = require('socket.io').listen(server);
+}
+
 io.sockets.on('connection', socket)
 function setupCORS(req, res, next) {
     // TODO: Review whether we need CORS here.
@@ -96,6 +130,7 @@ app.get('*', (req, res) => {
 // start the server
 const port = process.env.PORT || 3000;
 const env = process.env.NODE_ENV || 'production';
+
 server.listen(app.get('port'), err => {
   dictionary(function (err, dict) {
     spell = nspell(dict)
@@ -124,17 +159,33 @@ server.listen(app.get('port'), err => {
     // });
     
     // request.end();
-    var request = require('request');
-    request.post({
-        url: "http://localhost:8080/query",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: {
-          "query": "What are the scholarship for ASEAN students?"
-        },
-        json:true
-    }, function(error, response, body){
-      console.log(body)
-    });
+    // var request = require('request');
+    // request.post({
+    //     url: "http://localhost:8080/query",
+    //     headers: {
+    //         "Content-Type": "application/json"
+    //     },
+    //     body: {
+    //       "query": "What are the scholarship for ASEAN students?"
+    //     },
+    //     json:true
+    // }, function(error, response, body){
+    //   console.log(body)
+    // });
 });
+
+//io.attach(server);
+
+if(constants.IS_PRODUCTION) {
+  //var sslPort = 443;
+  //var sslServer = https.createServer(sslOptions, app);
+  //io.listen(sslServer);
+  sslServer.listen(sslPort, err => {
+    if(err) {
+      return console.error(err);
+    }
+    console.info("SSL Server running...");
+  })
+  //io.attach(sslServer);
+}
+
