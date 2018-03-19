@@ -58,3 +58,7 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# generated static
+src/static/css/
+src/static/js/
