@@ -49,10 +49,6 @@ app.use(Express.static(path.join(__dirname, 'static')));
 
 app.set('port', 80)
 
-//var ioServer = require('socket.io');
-//var io = new ioServer();
-//var io = require('socket.io').listen(server);
-
 var sslPort = 443;
 var sslServer = https.createServer(sslOptions, app);
 var io
@@ -76,7 +72,7 @@ function setupCORS(req, res, next) {
         next();
     }
 }
-// app.all('*', setupCORS);
+
 // universal routing and rendering
 app.post("/preprocess", function(req, res) {
    res.setHeader('Content-Type', 'application/json');
@@ -174,18 +170,13 @@ server.listen(app.get('port'), err => {
     // });
 });
 
-//io.attach(server);
 
 if(constants.IS_PRODUCTION) {
-  //var sslPort = 443;
-  //var sslServer = https.createServer(sslOptions, app);
-  //io.listen(sslServer);
   sslServer.listen(sslPort, err => {
     if(err) {
       return console.error(err);
     }
     console.info("SSL Server running...");
   })
-  //io.attach(sslServer);
 }
 
