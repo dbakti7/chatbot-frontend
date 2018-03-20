@@ -14,8 +14,8 @@ var topics = ["SCSE", "Hostel", "Scholarship"]
 var internalQueryURL = 'http://localhost:8080/internal-query';
 var preprocessURL = 'http://localhost/preprocess';
 if(constants.IS_PRODUCTION) {
-	internalQueryURL = 'https://www.pieceofcode.org:8080/internal-query';
-	preprocessURL = 'https://www.pieceofcode.org/preprocess';
+	internalQueryURL = constants.SERVER_URL;
+	preprocessURL = constants.PREPROCESS_URL;
 }
 
 var getTopics = function() {
@@ -39,21 +39,6 @@ var generate_key = function() {
 
 
 function botQuery(query, sessionID, enumerator) {
-//   var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece")
-//   var request = app.textRequest(query, {
-// 	  sessionId: sessionID
-//   })
-
-//   request.on('response', function(response) {
-// 	  console.log(response)
-//   })
-  
-//   request.on('error', function(error){
-// 	  console.log(error)
-//   })
-
-//   request.end()
-//   return fetch('http://localhost:8080/query', {
 	return fetch(internalQueryURL, {
 		method: 'POST',
 		headers: {
