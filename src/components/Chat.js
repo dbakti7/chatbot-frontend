@@ -58,6 +58,25 @@ function botQuery(query, sessionID, enumerator) {
 	})
 }
 
+function queryDialogflow(query, sessionID) {
+	var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
+ 
+    var request = app.textRequest(query, {
+        sessionId: sessionID
+    });
+ 
+    request.on('response', function(response) {
+		console.log(response)
+        return response
+    });
+    
+    request.on('error', function(error) {
+        console.log(error);
+    });
+    
+    request.end();
+}
+
 
 var UsersList = React.createClass({
 	render() {
@@ -320,7 +339,8 @@ var Chat = React.createClass({
 			
 			// TODO: Fixed the autocorrect module
 			//botQuery(queryMessage, that.state.sessionID).then(response => {
-			botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
+			// botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
+				queryDialogflow(message.text, that.state.sessionID).then(response => {
 				console.log("Context: " + response.Context)
 				var m = {
 					user : "Bot",
