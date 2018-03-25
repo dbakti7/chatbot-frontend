@@ -59,7 +59,7 @@ function botQuery(query, sessionID, enumerator) {
 }
 
 function queryDialogflow(query, sessionID) {
-	var app = apiai("58be6f8f4fb9447693edd36fb975bece");
+    var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
  
     var request = app.textRequest(query, {
         sessionId: sessionID
