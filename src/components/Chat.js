@@ -59,6 +59,8 @@ function botQuery(query, sessionID, enumerator) {
 }
 
 function queryDialogflow(query, sessionID) {
+	// TODO: CORS setup in node.js is broken, most likely due to external dependency
+	// problem, routed to go server instead. It will allow more control in go server too.
     var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
  
     var request = app.textRequest(query, {
@@ -99,8 +101,6 @@ var UsersList = React.createClass({
 	}
 });
 
-// If want to show username:
-//<strong>{this.props.user} :</strong>	
 var Message = React.createClass({
 	render() {
 		const isBot = this.props.bot;
@@ -337,10 +337,8 @@ var Chat = React.createClass({
 				
 			socket.emit('send:message', message);
 			
-			// TODO: Fixed the autocorrect module
-			//botQuery(queryMessage, that.state.sessionID).then(response => {
-			// botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
-				queryDialogflow(message.text, that.state.sessionID).then(response => {
+			botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
+			// queryDialogflow(message.text, that.state.sessionID).then(response => {
 				console.log("Context: " + response.Context)
 				var m = {
 					user : "Bot",
