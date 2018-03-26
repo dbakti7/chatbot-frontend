@@ -19,6 +19,7 @@ if(constants.IS_PRODUCTION) {
 }
 
 var getTopics = function() {
+	// welcome message
 	var welcomeText = "Welcome to NTU Chatbot. You can find out more about:\n"
 	for(var i = 0; i < topics.length; i++)
 		welcomeText += (i+1) + ". " + topics[i] + "\n"
@@ -78,28 +79,6 @@ function queryDialogflow(query, sessionID) {
     
     request.end();
 }
-
-
-var UsersList = React.createClass({
-	render() {
-		return (
-			<div className='users'>
-				<h3> Online Users </h3>
-				<ul>
-					{
-						this.props.users.map((user, i) => {
-							return (
-								<li key={i}>
-									{user}
-								</li>
-							);
-						})
-					}
-				</ul>				
-			</div>
-		);
-	}
-});
 
 var Message = React.createClass({
 	render() {
@@ -194,37 +173,6 @@ var MessageForm = React.createClass({
 	}
 });
 
-var ChangeNameForm = React.createClass({
-	getInitialState() {
-		return {newName: ''};
-	},
-
-	onKey(e) {
-		this.setState({ newName : e.target.value });
-	},
-
-	handleSubmit(e) {
-		e.preventDefault();
-		var newName = this.state.newName;
-		this.props.onChangeName(newName);	
-		this.setState({ newName: '' });
-	},
-
-	render() {
-		return(
-			<div className='change_name_form'>
-				<h3> Change Name </h3>
-				<form onSubmit={this.handleSubmit}>
-					<input
-						onChange={this.onKey}
-						value={this.state.newName} 
-					/>
-				</form>	
-			</div>
-		);
-	}
-});
-
 
 var Chat = React.createClass({
 	getInitialState() {
@@ -239,10 +187,7 @@ var Chat = React.createClass({
 	
 	componentDidMount() {
 		socket.on('init', this._initialize);
-		socket.on('send:message', this._messageRecieve);
-		socket.on('user:join', this._userJoined);
-		socket.on('user:left', this._userLeft);
-		socket.on('change:name', this._userChangedName);
+		socket.on('send:message', this._messageReceive);
 	},
 
 	componentDidUpdate() {
@@ -254,45 +199,10 @@ var Chat = React.createClass({
 		this.setState({users, user: name});
 	},
 
-	_messageRecieve(message) {
+	_messageReceive(message) {
 		var {messages} = this.state;
 		messages.push(message);
 		this.setState({messages});
-	},
-
-	_userJoined(data) {
-		var {users, messages} = this.state;
-		var {name} = data;
-		users.push(name);
-		messages.push({
-			user: 'APPLICATION BOT',
-			text : name +' Joined'
-		});
-		this.setState({users, messages});
-	},
-
-	_userLeft(data) {
-		var {users, messages} = this.state;
-		var {name} = data;
-		var index = users.indexOf(name);
-		users.splice(index, 1);
-		messages.push({
-			user: 'APPLICATION BOT',
-			text : name +' Left'
-		});
-		this.setState({users, messages});
-	},
-
-	_userChangedName(data) {
-		var {oldName, newName} = data;
-		var {users, messages} = this.state;
-		var index = users.indexOf(oldName);
-		users.splice(index, 1, newName);
-		messages.push({
-			user: 'APPLICATION BOT',
-			text : 'Change Name : ' + oldName + ' ==> '+ newName
-		});
-		this.setState({users, messages});
 	},
 
 	handleMessageSubmit(message) {
@@ -331,7 +241,6 @@ var Chat = React.createClass({
 					bot: true,
 					context: ""
 				}
-				//that._messageRecieve(newMessage)
 				queryMessage = data.result
 			}
 				
@@ -355,21 +264,8 @@ var Chat = React.createClass({
 					that.state.enumerator = []
 				console.log("Enumerator " + that.state.enumerator)
 				console.log("Context After" + that.state.context)
-				that._messageRecieve(m)
+				that._messageReceive(m)
 			})
-		});
-	},
-
-	handleChangeName(newName) {
-		var oldName = this.state.user;
-		socket.emit('change:name', { name : newName}, (result) => {
-			if(!result) {
-				return alert('There was an error changing your name');
-			}
-			var {users} = this.state;
-			var index = users.indexOf(oldName);
-			users.splice(index, 1, newName);
-			this.setState({users, user: newName});
 		});
 	},
 
