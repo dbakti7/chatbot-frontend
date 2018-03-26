@@ -69,7 +69,6 @@ function queryDialogflow(query, sessionID) {
     });
  
     request.on('response', function(response) {
-		console.log(response)
         return response
     });
     
@@ -246,9 +245,10 @@ var Chat = React.createClass({
 				
 			socket.emit('send:message', message);
 			
+			// change message.text to queryMessage if Spellchecker is activated
 			botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
 			// queryDialogflow(message.text, that.state.sessionID).then(response => {
-				console.log("Context: " + response.Context)
+				
 				var m = {
 					user : "Bot",
 					text : response.Result,
@@ -257,13 +257,12 @@ var Chat = React.createClass({
 				}
 				// if(response.Result == "reset")
 				// 	m = getTopics()
-				console.log("Context Before" + that.state.context)
+				
 				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
 				that.state.enumerator = response.Enum
 				if(that.state.enumerator == "")
 					that.state.enumerator = []
-				console.log("Enumerator " + that.state.enumerator)
-				console.log("Context After" + that.state.context)
+				
 				that._messageReceive(m)
 			})
 		});
