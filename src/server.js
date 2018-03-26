@@ -49,10 +49,6 @@ app.use(Express.static(path.join(__dirname, 'static')));
 
 app.set('port', 80)
 
-//var ioServer = require('socket.io');
-//var io = new ioServer();
-//var io = require('socket.io').listen(server);
-
 var sslPort = 443;
 var sslServer = https.createServer(sslOptions, app);
 var io
@@ -63,20 +59,7 @@ if(constants.IS_PRODUCTION) {
 }
 
 io.sockets.on('connection', socket)
-function setupCORS(req, res, next) {
-    // TODO: Review whether we need CORS here.
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,FETCH');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-type,Accept,X-Access-Token,X-Key,Authorization');
-    // res.header('Access-Control-Allow-Headers', '*');
-    res.header('Access-Control-Allow-Origin', '*');
-    console.log("IN HERE")
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-    } else {
-        next();
-    }
-}
-// app.all('*', setupCORS);
+
 // universal routing and rendering
 app.post("/preprocess", function(req, res) {
    res.setHeader('Content-Type', 'application/json');
@@ -141,51 +124,15 @@ server.listen(app.get('port'), err => {
     return console.error(err);
   }
   console.info(`Server running on http://localhost:${port} [${env}]`);
-  
-    // If want to send request directly
-    // var app = apiai("031636d290f341729417585f09f1ebc4");
- 
-    // var request = app.textRequest('ASEAN Scholarship', {
-    //     sessionId: '123123'
-    // });
- 
-    // request.on('response', function(response) {
-    //     console.log(response);
-    //     return response
-    // });
-    
-    // request.on('error', function(error) {
-    //     console.log(error);
-    // });
-    
-    // request.end();
-    // var request = require('request');
-    // request.post({
-    //     url: "http://localhost:8080/query",
-    //     headers: {
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: {
-    //       "query": "What are the scholarship for ASEAN students?"
-    //     },
-    //     json:true
-    // }, function(error, response, body){
-    //   console.log(body)
-    // });
 });
 
-//io.attach(server);
 
 if(constants.IS_PRODUCTION) {
-  //var sslPort = 443;
-  //var sslServer = https.createServer(sslOptions, app);
-  //io.listen(sslServer);
   sslServer.listen(sslPort, err => {
     if(err) {
       return console.error(err);
     }
     console.info("SSL Server running...");
   })
-  //io.attach(sslServer);
 }
 

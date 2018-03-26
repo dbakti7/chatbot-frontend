@@ -5,4 +5,6 @@ function define(name, value) {
     });
 }
 
-define("IS_PRODUCTION", true);
+define("IS_PRODUCTION", false);
+define("SERVER_URL", "https://www.pieceofcode.org:8080/internal-query")
+define("PREPROCESS_URL", "https://www.pieceofcode.org/preprocess")
