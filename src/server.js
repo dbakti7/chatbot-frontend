@@ -22,12 +22,14 @@ var socket = require('./socket.js');
 
 var sslOptions = {}
 
+app.set('port', constants.LOCALHOST_PORT)
+
 if(constants.IS_PRODUCTION) {
   sslOptions = {
-    key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
+    key: fs.readFileSync(constants.KEY_FILE),
+    cert: fs.readFileSync(constants.CERT_FILE)
   };
-
+  app.set('port', 80)
   app.use(function(req,res,next) {
   if (!/https/.test(req.protocol)){
      res.redirect("https://" + req.headers.host + req.url);
@@ -47,7 +49,7 @@ app.use(bodyParser.json())
 // define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
 
-app.set('port', 80)
+
 
 var sslPort = 443;
 var sslServer = https.createServer(sslOptions, app);
@@ -61,7 +63,7 @@ if(constants.IS_PRODUCTION) {
 io.sockets.on('connection', socket)
 
 // universal routing and rendering
-app.post("/preprocess", function(req, res) {
+app.post(constants.PREPROCESS_ENDPOINT, function(req, res) {
    res.setHeader('Content-Type', 'application/json');
 
     var result = ""
@@ -111,9 +113,6 @@ app.get('*', (req, res) => {
 });
 
 // start the server
-const port = process.env.PORT || 3000;
-const env = process.env.NODE_ENV || 'production';
-
 server.listen(app.get('port'), err => {
   dictionary(function (err, dict) {
     spell = nspell(dict)
@@ -123,7 +122,7 @@ server.listen(app.get('port'), err => {
   if (err) {
     return console.error(err);
   }
-  console.info(`Server running on http://localhost:${port} [${env}]`);
+  console.info("Server running on http://localhost:" + app.get("port"));
 });
 
 

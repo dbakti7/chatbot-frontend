@@ -11,11 +11,11 @@ var constants = require('../constants')
 
 var topics = ["SCSE", "Hostel", "Scholarship"]
 
-var internalQueryURL = 'http://localhost:8080/internal-query';
-var preprocessURL = 'http://localhost/preprocess';
+var internalQueryURL = constants.SERVER_URL_LOCAL + constants.SERVER_ENDPOINT;
+var preprocessURL = constants.LOCALHOST + ":" + constants.LOCALHOST_PORT + constants.PREPROCESS_ENDPOINT;
 if(constants.IS_PRODUCTION) {
-	internalQueryURL = constants.SERVER_URL;
-	preprocessURL = constants.PREPROCESS_URL;
+	internalQueryURL = constants.SERVER_URL + constants.SERVER_ENDPOINT;
+	preprocessURL = constants.LOCALHOST + constants.PREPROCESS_ENDPOINT;
 }
 
 var getTopics = function() {
