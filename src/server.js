@@ -88,21 +88,21 @@ app.post(constants.DIALOGFLOW_QUERY_ENDPOINT, function (req, res) {
   var query = req.body.query
   var sessionID = req.body.sessionID
 
-	var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
+  var app = dialogFlow(constants.DIALOGFLOW_TOKEN);
 
-	var request = app.textRequest(query, {
-		sessionId: sessionID
-	});
+  var request = app.textRequest(query, {
+    sessionId: sessionID
+  });
 
-	request.on('response', function (response) {
-		res.send(JSON.stringify(response));
-	});
+  request.on('response', function (response) {
+    res.send(JSON.stringify(response));
+  });
 
-	request.on('error', function (error) {
-		console.log(error);
-	});
+  request.on('error', function (error) {
+    console.log(error);
+  });
 
-	request.end();
+  request.end();
 })
 
 app.get('*', (req, res) => {

@@ -12,6 +12,9 @@ define("IS_PRODUCTION", false);
 define("CERT_FILE", "/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem");
 define("KEY_FILE", "/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem");
 
+define("DIRECT_QUERY", true);
+define("DIALOGFLOW_TOKEN", "58be6f8f4fb9447693edd36fb975bece");
+
 define("LOCALHOST", "http://localhost");
 define("DEPLOYMENT_URL", "https://www.pieceofcode.org");
 define("LOCALHOST_PORT", "3000");
