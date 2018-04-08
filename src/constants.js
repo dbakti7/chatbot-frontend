@@ -13,7 +13,8 @@ define("CERT_FILE", "/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem");
 define("KEY_FILE", "/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem");
 
 define("LOCALHOST", "http://localhost");
-define("LOCALHOST_PORT", "3000"); // only used when IS_PRODUCTION is false
+define("DEPLOYMENT_URL", "https://www.pieceofcode.org");
+define("LOCALHOST_PORT", "3000");
 
 // set to true to enable client-side spellchecking, false otherwise
 define("USE_SPELLCHECKING", true);
