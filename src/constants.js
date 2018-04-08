@@ -1,8 +1,8 @@
 function define(name, value) {
-    Object.defineProperty(exports, name, {
-        value:      value,
-        enumerable: true
-    });
+  Object.defineProperty(exports, name, {
+    value: value,
+    enumerable: true
+  });
 }
 
 // set to true to deploy with HTTPS

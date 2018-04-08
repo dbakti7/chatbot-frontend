@@ -24,18 +24,19 @@ var sslOptions = {}
 
 app.set('port', constants.LOCALHOST_PORT)
 
-if(constants.IS_PRODUCTION) {
+if (constants.IS_PRODUCTION) {
   sslOptions = {
     key: fs.readFileSync(constants.KEY_FILE),
     cert: fs.readFileSync(constants.CERT_FILE)
   };
   app.set('port', 80)
-  app.use(function(req,res,next) {
-  if (!/https/.test(req.protocol)){
-     res.redirect("https://" + req.headers.host + req.url);
-  } else {
-     return next();
-  }});
+  app.use(function (req, res, next) {
+    if (!/https/.test(req.protocol)) {
+      res.redirect("https://" + req.headers.host + req.url);
+    } else {
+      return next();
+    }
+  });
 }
 
 var server = new Server(app);
@@ -54,7 +55,7 @@ app.use(Express.static(path.join(__dirname, 'static')));
 var sslPort = 443;
 var sslServer = https.createServer(sslOptions, app);
 var io
-if(constants.IS_PRODUCTION) {
+if (constants.IS_PRODUCTION) {
   io = require('socket.io').listen(sslServer);
 } else {
   io = require('socket.io').listen(server);
@@ -63,22 +64,22 @@ if(constants.IS_PRODUCTION) {
 io.sockets.on('connection', socket)
 
 // universal routing and rendering
-app.post(constants.PREPROCESS_ENDPOINT, function(req, res) {
-   res.setHeader('Content-Type', 'application/json');
+app.post(constants.PREPROCESS_ENDPOINT, function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
 
-    var result = ""
-    var y = req.body.word
-     var words = y.split(" ")
-     for(var i = 0;i<words.length;i+=1) {
-       if(i != 0)
-        result = result + " "
-       var cur = spell.suggest(words[i])
-       if(cur.length > 0)
-        result = result + cur[0]
-       else
-        result = result + words[i]
-     }
-    res.send(JSON.stringify({ result: result }));
+  var result = ""
+  var y = req.body.word
+  var words = y.split(" ")
+  for (var i = 0; i < words.length; i += 1) {
+    if (i != 0)
+      result = result + " "
+    var cur = spell.suggest(words[i])
+    if (cur.length > 0)
+      result = result + cur[0]
+    else
+      result = result + words[i]
+  }
+  res.send(JSON.stringify({ result: result }));
 })
 app.get('*', (req, res) => {
   match(
@@ -99,10 +100,10 @@ app.get('*', (req, res) => {
       let markup;
       if (renderProps) {
         // if the current route matched we have renderProps
-        markup = renderToString(<RouterContext {...renderProps}/>);
+        markup = renderToString(<RouterContext {...renderProps} />);
       } else {
         // otherwise we can render a 404 page
-        markup = renderToString(<NotFoundPage/>);
+        markup = renderToString(<NotFoundPage />);
         res.status(404);
       }
 
@@ -117,8 +118,8 @@ server.listen(app.get('port'), err => {
   dictionary(function (err, dict) {
     spell = nspell(dict)
   })
-  
-  
+
+
   if (err) {
     return console.error(err);
   }
@@ -126,9 +127,9 @@ server.listen(app.get('port'), err => {
 });
 
 
-if(constants.IS_PRODUCTION) {
+if (constants.IS_PRODUCTION) {
   sslServer.listen(sslPort, err => {
-    if(err) {
+    if (err) {
       return console.error(err);
     }
     console.info("SSL Server running...");

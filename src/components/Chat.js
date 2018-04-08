@@ -13,16 +13,16 @@ var topics = ["SCSE", "Hostel", "Scholarship"]
 
 var internalQueryURL = constants.SERVER_URL_LOCAL + constants.SERVER_ENDPOINT;
 var preprocessURL = constants.LOCALHOST + ":" + constants.LOCALHOST_PORT + constants.PREPROCESS_ENDPOINT;
-if(constants.IS_PRODUCTION) {
+if (constants.IS_PRODUCTION) {
 	internalQueryURL = constants.SERVER_URL + constants.SERVER_ENDPOINT;
 	preprocessURL = constants.LOCALHOST + constants.PREPROCESS_ENDPOINT;
 }
 
-var getTopics = function() {
+var getTopics = function () {
 	// welcome message
 	var welcomeText = "Welcome to NTU Chatbot. You can find out more about:\n"
-	for(var i = 0; i < topics.length; i++)
-		welcomeText += (i+1) + ". " + topics[i] + "\n"
+	for (var i = 0; i < topics.length; i++)
+		welcomeText += (i + 1) + ". " + topics[i] + "\n"
 	var alpha2message = "Welcome to NTU Chatbot! We are currently in testing phase to gather more data, please ask questions related to SCSE, scholarship, or hostel. After that, please help us by filling the following questionaire: https://tinyurl.com/botfeedback-alpha2"
 
 	var newMessage = {
@@ -34,8 +34,8 @@ var getTopics = function() {
 	return newMessage
 }
 
-var generate_key = function() {
-    return uuid.v4()
+var generate_key = function () {
+	return uuid.v4()
 };
 
 
@@ -43,18 +43,19 @@ function botQuery(query, sessionID, enumerator) {
 	return fetch(internalQueryURL, {
 		method: 'POST',
 		headers: {
-		'Accept': 'application/json',
-		'Content-Type': 'application/json',
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-		query: query, 
-		sessionID: sessionID,
-		enum: enumerator
+			query: query,
+			sessionID: sessionID,
+			enum: enumerator
 		})
 	}).then((response) => {
-		if(response.ok) {
+		if (response.ok) {
 			return response.json()
-	}}).then(json => {
+		}
+	}).then(json => {
 		return json
 	})
 }
@@ -62,37 +63,37 @@ function botQuery(query, sessionID, enumerator) {
 function queryDialogflow(query, sessionID) {
 	// TODO: CORS setup in node.js is broken, most likely due to external dependency
 	// problem, routed to go server instead. It will allow more control in go server too.
-    var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
- 
-    var request = app.textRequest(query, {
-        sessionId: sessionID
-    });
- 
-    request.on('response', function(response) {
-        return response
-    });
-    
-    request.on('error', function(error) {
-        console.log(error);
-    });
-    
-    request.end();
+	var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
+
+	var request = app.textRequest(query, {
+		sessionId: sessionID
+	});
+
+	request.on('response', function (response) {
+		return response
+	});
+
+	request.on('error', function (error) {
+		console.log(error);
+	});
+
+	request.end();
 }
 
 var Message = React.createClass({
 	render() {
 		const isBot = this.props.bot;
-		if(isBot) {
+		if (isBot) {
 			return (
-					<div className="talk-bubble tri-right right-top round">
-						<div className="talktext">
-							<Linkify properties={{target: '_blank'}}>
-								<span>{this.props.text.split("\n").map(i => {
-									return <p>{i}</p>;
-								})}</span>		
-							</Linkify>
-						</div>
+				<div className="talk-bubble tri-right right-top round">
+					<div className="talktext">
+						<Linkify properties={{ target: '_blank' }}>
+							<span>{this.props.text.split("\n").map(i => {
+								return <p>{i}</p>;
+							})}</span>
+						</Linkify>
 					</div>
+				</div>
 			);
 		}
 		else {
@@ -100,11 +101,11 @@ var Message = React.createClass({
 				<div>
 					<div className="talk-bubble tri-right left-top round">
 						<div className="talktext">
-						<Linkify properties={{target: '_blank'}}>
-							<span>{this.props.text.split("\n").map(i => {
+							<Linkify properties={{ target: '_blank' }}>
+								<span>{this.props.text.split("\n").map(i => {
 									return <p>{i}</p>;
-								})}</span>		
-						</Linkify>
+								})}</span>
+							</Linkify>
 						</div>
 					</div>
 				</div>
@@ -124,12 +125,12 @@ var MessageList = React.createClass({
 								<Message
 									key={i}
 									user={message.user}
-									text={message.text} 
+									text={message.text}
 									bot={message.bot}
 								/>
 							);
 						})
-					} 
+					}
 				</div>
 			</div>
 		);
@@ -139,14 +140,14 @@ var MessageList = React.createClass({
 var MessageForm = React.createClass({
 
 	getInitialState() {
-		return {text: ''};
+		return { text: '' };
 	},
 
 	handleSubmit(e) {
 		e.preventDefault();
 		var message = {
-			user : this.props.user,
-			text : this.state.text,
+			user: this.props.user,
+			text: this.state.text,
 			bot: false,
 			context: ""
 		}
@@ -155,11 +156,11 @@ var MessageForm = React.createClass({
 	},
 
 	changeHandler(e) {
-		this.setState({ text : e.target.value });
+		this.setState({ text: e.target.value });
 	},
 
 	render() {
-		return(
+		return (
 			<div className='message_form'>
 				<form onSubmit={this.handleSubmit}>
 					<input
@@ -175,7 +176,7 @@ var MessageForm = React.createClass({
 
 var Chat = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[getTopics()], text: '', sessionID:generate_key(), context:'', enumerator:[]};
+		return { users: [], messages: [getTopics()], text: '', sessionID: generate_key(), context: '', enumerator: [] };
 		// return {users: [], messages:[], text: '', sessionID:generate_key(), context:'', enumerator:[]};
 	},
 
@@ -183,7 +184,7 @@ var Chat = React.createClass({
 		const node = ReactDOM.findDOMNode(this.messagesEnd);
 		node.scrollIntoView({ behavior: "smooth" });
 	},
-	
+
 	componentDidMount() {
 		socket.on('init', this._initialize);
 		socket.on('send:message', this._messageReceive);
@@ -194,89 +195,89 @@ var Chat = React.createClass({
 	},
 
 	_initialize(data) {
-		var {users, name} = data;
-		this.setState({users, user: name});
+		var { users, name } = data;
+		this.setState({ users, user: name });
 	},
 
 	_messageReceive(message) {
-		var {messages} = this.state;
+		var { messages } = this.state;
 		messages.push(message);
-		this.setState({messages});
+		this.setState({ messages });
 	},
 
 	handleMessageSubmit(message) {
-		var {messages} = this.state;
+		var { messages } = this.state;
 		messages.push(message);
-		this.setState({messages});
+		this.setState({ messages });
 		var that = this
-		if(message.text == "clear") {
+		if (message.text == "clear") {
 			// messages = [getTopics()]
 			messages = []
-			this.setState({messages});
+			this.setState({ messages });
 			return;
 		}
 		var data = {
 			"word": message.text
 		}
-		
+
 		function processQuery(query) {
 			socket.emit('send:message', message);
-			
+
 			// change message.text to queryMessage if Spellchecker is activated
 			botQuery(query, that.state.sessionID, that.state.enumerator).then(response => {
-			// queryDialogflow(message.text, that.state.sessionID).then(response => {
-				
+				// queryDialogflow(message.text, that.state.sessionID).then(response => {
+
 				var m = {
-					user : "Bot",
-					text : response.Result,
+					user: "Bot",
+					text: response.Result,
 					bot: true,
 					context: response.Context
 				}
 				// if(response.Result == "reset")
 				// 	m = getTopics()
-				
+
 				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
 				that.state.enumerator = response.Enum
-				if(that.state.enumerator == "")
+				if (that.state.enumerator == "")
 					that.state.enumerator = []
-				
+
 				that._messageReceive(m)
 			})
 		}
-		if(constants.USE_SPELLCHECKING) {
+		if (constants.USE_SPELLCHECKING) {
 			fetch(preprocessURL, {
 				method: "POST",
 				headers: {
 					'Accept': 'application/json, text/plain, */*',
 					'Content-Type': 'application/json'
-	    			},
-				body:  JSON.stringify(data)
+				},
+				body: JSON.stringify(data)
 			})
-			.then(function(response){ 
-				return response.json();   
-			})
-			.then(function(data){ 
-				console.log("Autocorrect used:")
-				console.log(data.result)
-				processQuery(data.result);
-			});
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (data) {
+					console.log("Autocorrect used:")
+					console.log(data.result)
+					processQuery(data.result);
+				});
 		} else {
 			processQuery(message.text);
 		}
-		
+
 	},
 
 	render() {
 		return (
-			<div style={{height: '100%'}}>
-				<div style={{height:'80%', overflowY:'scroll', width:'100%', position:'fixed'}}>
+			<div style={{ height: '100%' }}>
+				<div style={{ height: '80%', overflowY: 'scroll', width: '100%', position: 'fixed' }}>
 					<MessageList
 						messages={this.state.messages}
 					/>
-					<div style={{ float:"left", clear: "both" }}
-             		ref={(el) => { this.messagesEnd = el; }}></div>
+					<div style={{ float: "left", clear: "both" }}
+						ref={(el) => { this.messagesEnd = el; }}></div>
 				</div>
-				<div style={{position: 'fixed', height: '20%', bottom: '0'}}>
+				<div style={{ position: 'fixed', height: '20%', bottom: '0' }}>
 					<h3 ref={(el) => { this.contextText = el; }}>
 						What do you want to know about?
 					</h3>
@@ -286,7 +287,7 @@ var Chat = React.createClass({
 					/>
 				</div>
 			</div>
-			
+
 		);
 	}
 });
