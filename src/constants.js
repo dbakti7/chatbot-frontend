@@ -15,6 +15,7 @@ define("KEY_FILE", "/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem");
 // port number for local deployment
 // if IS_PRODUCTION is true, 443 is used by default
 define("LOCALHOST", "http://localhost");
+define("DEPLOYMENT_URL", "https://www.pieceofcode.org");
 define("LOCALHOST_PORT", "3000");
 
 // server url and end-point as proxy to Dialogflow

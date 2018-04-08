@@ -15,7 +15,7 @@ var internalQueryURL = constants.SERVER_URL_LOCAL + constants.SERVER_ENDPOINT;
 var preprocessURL = constants.LOCALHOST + ":" + constants.LOCALHOST_PORT + constants.PREPROCESS_ENDPOINT;
 if (constants.IS_PRODUCTION) {
 	internalQueryURL = constants.SERVER_URL + constants.SERVER_ENDPOINT;
-	preprocessURL = constants.LOCALHOST + constants.PREPROCESS_ENDPOINT;
+	preprocessURL = constants.DEPLOYMENT_URL + constants.PREPROCESS_ENDPOINT;
 }
 
 var getTopics = function () {
