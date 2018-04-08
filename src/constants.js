@@ -26,3 +26,4 @@ define("PREPROCESS_ENDPOINT", "/preprocess");
 define("SERVER_URL", "https://www.pieceofcode.org:8080");
 define("SERVER_URL_LOCAL", "http://localhost:8080");
 define("SERVER_ENDPOINT", "/internal-query");
+define("DIALOGFLOW_QUERY_ENDPOINT", "/df-query");

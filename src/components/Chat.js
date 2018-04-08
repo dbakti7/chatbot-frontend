@@ -13,6 +13,7 @@ var topics = ["SCSE", "Hostel", "Scholarship"]
 
 var internalQueryURL = constants.SERVER_URL_LOCAL + constants.SERVER_ENDPOINT;
 var preprocessURL = constants.LOCALHOST + ":" + constants.LOCALHOST_PORT + constants.PREPROCESS_ENDPOINT;
+var dialogflowQueryURL = constants.DEPLOYMENT_URL + constants.DIALOGFLOW_QUERY_ENDPOINT;
 if (constants.IS_PRODUCTION) {
 	internalQueryURL = constants.SERVER_URL + constants.SERVER_ENDPOINT;
 	preprocessURL = constants.DEPLOYMENT_URL + constants.PREPROCESS_ENDPOINT;
@@ -62,22 +63,26 @@ function botQuery(query, sessionID, enumerator) {
 
 function queryDialogflow(query, sessionID) {
 	// TODO: CORS setup in node.js is broken, most likely due to external dependency
-	// problem, routed to go server instead. It will allow more control in go server too.
-	var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
-
-	var request = app.textRequest(query, {
-		sessionId: sessionID
-	});
-
-	request.on('response', function (response) {
-		return response
-	});
-
-	request.on('error', function (error) {
-		console.log(error);
-	});
-
-	request.end();
+  // problem, routed to go server instead. It will allow more control in go server too.
+  var data = {
+    "query": query,
+    "sessionID": sessionID
+  }
+	fetch(dialogflowQueryURL, {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json, text/plain, */*',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log("Autocorrect used:")
+      console.log(data.result)
+    });
 }
 
 var Message = React.createClass({
@@ -224,8 +229,8 @@ var Chat = React.createClass({
 			socket.emit('send:message', message);
 
 			// change message.text to queryMessage if Spellchecker is activated
-			botQuery(query, that.state.sessionID, that.state.enumerator).then(response => {
-				// queryDialogflow(message.text, that.state.sessionID).then(response => {
+			// botQuery(query, that.state.sessionID, that.state.enumerator).then(response => {
+				queryDialogflow(message.text, that.state.sessionID).then(response => {
 
 				var m = {
 					user: "Bot",

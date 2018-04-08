@@ -81,6 +81,28 @@ app.post(constants.PREPROCESS_ENDPOINT, function (req, res) {
   }
   res.send(JSON.stringify({ result: result }));
 })
+
+app.post(constants.DIALOGFLOW_QUERY_ENDPOINT, function (req, res) {
+  var query = req.body.query
+  var sessionID = req.body.sessionID
+
+	var app = dialogFlow("58be6f8f4fb9447693edd36fb975bece");
+
+	var request = app.textRequest(query, {
+		sessionId: sessionID
+	});
+
+	request.on('response', function (response) {
+		console.log(response)
+	});
+
+	request.on('error', function (error) {
+		console.log(error);
+	});
+
+	request.end();
+})
+
 app.get('*', (req, res) => {
   match(
     { routes, location: req.url },
