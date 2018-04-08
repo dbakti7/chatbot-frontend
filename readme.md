@@ -22,6 +22,11 @@ sudo make install
 `npm install`
 
 ## Running the node.js server
+Go to the following file for configuration.
+```
+src/constants.js
+```
+
 If you are on Linux environment, run the following commands.
 ```
 node_modules/.bin/webpack -p
@@ -34,5 +39,33 @@ NODE_ENV=production node_modules/.bin/webpack -p
 NODE_ENV=production node_modules/.bin/babel-node --presets react,es2015 src/server.js
 ```
 
-Navigate to
-`localhost:3000/chat`
+If IS_PRODUCTION = false, navigate to
+```
+localhost:{port}
+```
+
+otherwise, navigate to either one of
+```
+localhost
+https://your_domain_name
+```
+
+# Sample Requests for Testing
+## /df-query endpoint
+Used to query dialogflow directly.
+```
+POST localhost:{port}/df-query
+{
+	"query": "scholraship ailve",
+	"sessionID": "test"
+}
+```
+
+## /preprocess endpoint
+Used to perform spellchecking on client-side.
+```
+POST localhost:{port}/preprocess
+{
+	"word": "intrnational schloarship"
+}
+```

@@ -11,6 +11,7 @@ import routes from './routes';
 import NotFoundPage from './components/NotFoundPage';
 var constants = require('./constants');
 var fs = require('fs')
+var dialogFlow = require('apiai')
 
 var bodyParser = require('body-parser')
 var dictionary = require('dictionary-en-us')
@@ -22,18 +23,21 @@ var socket = require('./socket.js');
 
 var sslOptions = {}
 
-if(constants.IS_PRODUCTION) {
-  sslOptions = {
-    key: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/www.pieceofcode.org/fullchain.pem')
-  };
+app.set('port', constants.LOCALHOST_PORT)
 
-  app.use(function(req,res,next) {
-  if (!/https/.test(req.protocol)){
-     res.redirect("https://" + req.headers.host + req.url);
-  } else {
-     return next();
-  }});
+if (constants.IS_PRODUCTION) {
+  sslOptions = {
+    key: fs.readFileSync(constants.KEY_FILE),
+    cert: fs.readFileSync(constants.CERT_FILE)
+  };
+  app.set('port', 80)
+  app.use(function (req, res, next) {
+    if (!/https/.test(req.protocol)) {
+      res.redirect("https://" + req.headers.host + req.url);
+    } else {
+      return next();
+    }
+  });
 }
 
 var server = new Server(app);
@@ -47,12 +51,12 @@ app.use(bodyParser.json())
 // define the folder that will be used for static assets
 app.use(Express.static(path.join(__dirname, 'static')));
 
-app.set('port', 80)
+
 
 var sslPort = 443;
 var sslServer = https.createServer(sslOptions, app);
 var io
-if(constants.IS_PRODUCTION) {
+if (constants.IS_PRODUCTION) {
   io = require('socket.io').listen(sslServer);
 } else {
   io = require('socket.io').listen(server);
@@ -61,23 +65,46 @@ if(constants.IS_PRODUCTION) {
 io.sockets.on('connection', socket)
 
 // universal routing and rendering
-app.post("/preprocess", function(req, res) {
-   res.setHeader('Content-Type', 'application/json');
+app.post(constants.PREPROCESS_ENDPOINT, function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
 
-    var result = ""
-    var y = req.body.word
-     var words = y.split(" ")
-     for(var i = 0;i<words.length;i+=1) {
-       if(i != 0)
-        result = result + " "
-       var cur = spell.suggest(words[i])
-       if(cur.length > 0)
-        result = result + cur[0]
-       else
-        result = result + words[i]
-     }
-    res.send(JSON.stringify({ result: result }));
+  var result = ""
+  var y = req.body.word
+  var words = y.split(" ")
+  for (var i = 0; i < words.length; i += 1) {
+    if (i != 0)
+      result = result + " "
+    var cur = spell.suggest(words[i])
+    if (cur.length > 0)
+      result = result + cur[0]
+    else
+      result = result + words[i]
+  }
+  res.send(JSON.stringify({ result: result }));
 })
+
+app.post(constants.DIALOGFLOW_QUERY_ENDPOINT, function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  var query = req.body.query
+  var sessionID = req.body.sessionID
+
+  var app = dialogFlow(constants.DIALOGFLOW_TOKEN);
+
+  var request = app.textRequest(query, {
+    sessionId: sessionID
+  });
+
+  request.on('response', function (response) {
+    res.send(JSON.stringify(response));
+  });
+
+  request.on('error', function (error) {
+    console.log(error);
+  });
+
+  request.end();
+})
+
 app.get('*', (req, res) => {
   match(
     { routes, location: req.url },
@@ -97,10 +124,10 @@ app.get('*', (req, res) => {
       let markup;
       if (renderProps) {
         // if the current route matched we have renderProps
-        markup = renderToString(<RouterContext {...renderProps}/>);
+        markup = renderToString(<RouterContext {...renderProps} />);
       } else {
         // otherwise we can render a 404 page
-        markup = renderToString(<NotFoundPage/>);
+        markup = renderToString(<NotFoundPage />);
         res.status(404);
       }
 
@@ -111,25 +138,22 @@ app.get('*', (req, res) => {
 });
 
 // start the server
-const port = process.env.PORT || 3000;
-const env = process.env.NODE_ENV || 'production';
-
 server.listen(app.get('port'), err => {
   dictionary(function (err, dict) {
     spell = nspell(dict)
   })
-  
-  
+
+
   if (err) {
     return console.error(err);
   }
-  console.info(`Server running on http://localhost:${port} [${env}]`);
+  console.info("Server running on http://localhost:" + app.get("port"));
 });
 
 
-if(constants.IS_PRODUCTION) {
+if (constants.IS_PRODUCTION) {
   sslServer.listen(sslPort, err => {
-    if(err) {
+    if (err) {
       return console.error(err);
     }
     console.info("SSL Server running...");

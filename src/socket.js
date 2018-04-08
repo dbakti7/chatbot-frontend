@@ -3,10 +3,10 @@
 module.exports = function (socket) {
 
   socket.on('send:message', function (data) {
-    
+
   });
 
   socket.on('disconnect', function () {
-    
+
   });
 };
