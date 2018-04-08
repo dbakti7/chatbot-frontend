@@ -218,35 +218,12 @@ var Chat = React.createClass({
 		var data = {
 			"word": message.text
 		}
-
-		fetch(preprocessURL, {
-		method: "POST",
-		headers: {
-        	'Accept': 'application/json, text/plain, */*',
-        	'Content-Type': 'application/json'
-    	},
-		body:  JSON.stringify(data)
-		})
-		.then(function(response){ 
-			return response.json();   
-		})
-		.then(function(data){ 
-			var queryMessage = message.text
-			if(data.result != message.text) {
-				console.log(data.result)
-				var newMessage = {
-					user: "Bot",
-					text: "Did you mean: " + data.result,
-					bot: true,
-					context: ""
-				}
-				queryMessage = data.result
-			}
-				
+		
+		function processQuery(query) {
 			socket.emit('send:message', message);
 			
 			// change message.text to queryMessage if Spellchecker is activated
-			botQuery(message.text, that.state.sessionID, that.state.enumerator).then(response => {
+			botQuery(query, that.state.sessionID, that.state.enumerator).then(response => {
 			// queryDialogflow(message.text, that.state.sessionID).then(response => {
 				
 				var m = {
@@ -265,7 +242,28 @@ var Chat = React.createClass({
 				
 				that._messageReceive(m)
 			})
-		});
+		}
+		if(constants.USE_SPELLCHECKING) {
+			fetch(preprocessURL, {
+				method: "POST",
+				headers: {
+					'Accept': 'application/json, text/plain, */*',
+					'Content-Type': 'application/json'
+	    			},
+				body:  JSON.stringify(data)
+			})
+			.then(function(response){ 
+				return response.json();   
+			})
+			.then(function(data){ 
+				console.log("Autocorrect used:")
+				console.log(data.result)
+				processQuery(data.result);
+			});
+		} else {
+			processQuery(message.text);
+		}
+		
 	},
 
 	render() {
