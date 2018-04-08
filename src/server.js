@@ -11,6 +11,7 @@ import routes from './routes';
 import NotFoundPage from './components/NotFoundPage';
 var constants = require('./constants');
 var fs = require('fs')
+var dialogFlow = require('apiai')
 
 var bodyParser = require('body-parser')
 var dictionary = require('dictionary-en-us')
@@ -83,6 +84,7 @@ app.post(constants.PREPROCESS_ENDPOINT, function (req, res) {
 })
 
 app.post(constants.DIALOGFLOW_QUERY_ENDPOINT, function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
   var query = req.body.query
   var sessionID = req.body.sessionID
 
@@ -93,7 +95,7 @@ app.post(constants.DIALOGFLOW_QUERY_ENDPOINT, function (req, res) {
 	});
 
 	request.on('response', function (response) {
-		console.log(response)
+		res.send(JSON.stringify(response));
 	});
 
 	request.on('error', function (error) {

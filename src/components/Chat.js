@@ -68,7 +68,7 @@ function queryDialogflow(query, sessionID) {
     "query": query,
     "sessionID": sessionID
   }
-	fetch(dialogflowQueryURL, {
+return fetch(dialogflowQueryURL, {
     method: "POST",
     headers: {
       'Accept': 'application/json, text/plain, */*',
@@ -80,8 +80,11 @@ function queryDialogflow(query, sessionID) {
       return response.json();
     })
     .then(function (data) {
-      console.log("Autocorrect used:")
-      console.log(data.result)
+	var result = {
+		"Result": data.result.fulfillment.speech,
+		"Context": data.result.contexts
+	}
+	return result;
     });
 }
 
@@ -241,7 +244,7 @@ var Chat = React.createClass({
 				// if(response.Result == "reset")
 				// 	m = getTopics()
 
-				that.state.context = (typeof response.Context == "undefined") ? "" : response.Context.split("-")[0]
+				that.state.context = (typeof response.Context == "undefined" || response.Context.length == 0) ? "" : response.Context.split("-")[0]
 				that.state.enumerator = response.Enum
 				if (that.state.enumerator == "")
 					that.state.enumerator = []
